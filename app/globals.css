@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
+  --background: 42 38% 97%;
+  --foreground: 28 12% 20%;
+  --card: 42 36% 98%;
+  --card-foreground: 28 12% 20%;
+  --primary: 88 17% 36%;
+  --primary-foreground: 42 33% 96%;
+  --secondary: 40 32% 91%;
+  --secondary-foreground: 30 12% 23%;
+  --muted: 42 28% 93%;
+  --muted-foreground: 28 10% 38%;
+  --accent: 41 31% 88%;
+  --accent-foreground: 28 12% 20%;
+  --border: 38 18% 84%;
+  --input: 38 18% 84%;
+  --ring: 88 17% 36%;
+  --destructive: 0 72% 49%;
+  --destructive-foreground: 42 33% 96%;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(217, 210, 186, 0.35), transparent 30%),
+    linear-gradient(180deg, #fbf7f1 0%, #f6f0e7 100%);
+  color: hsl(var(--foreground));
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: rgba(125, 142, 108, 0.24);
+}

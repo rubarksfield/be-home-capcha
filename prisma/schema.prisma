@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AuthorizationStatus {
+  PENDING
+  AUTHORIZED
+  FAILED
+  MOCK_AUTHORIZED
+}
+
+model Lead {
+  id                    String              @id @default(cuid())
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  firstName             String?
+  email                 String
+  marketingConsent      Boolean             @default(false)
+  termsAccepted         Boolean
+  privacyAccepted       Boolean
+  ssid                  String?
+  site                  String?
+  apMac                 String?
+  clientMac             String?
+  clientIp              String?
+  redirect              String?
+  unifiState            String?
+  rawQueryParams        Json?
+  authorizationStatus   AuthorizationStatus @default(PENDING)
+  authorizationResponse Json?
+  userAgent             String?
+  honeypot              String?
+
+  @@index([createdAt(sort: Desc)])
+  @@index([email])
+  @@index([clientMac])
+  @@unique([email, clientMac, ssid], map: "lead_email_clientMac_ssid_key")
+}
