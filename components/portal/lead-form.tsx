@@ -113,17 +113,17 @@ export function LeadForm({ queryParams }: LeadFormProps) {
   };
 
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="space-y-3">
+    <Card className="overflow-hidden border-[#ebe3d6] bg-[#fbf7f1]/95">
+      <CardHeader className="space-y-3 px-6 pt-7 sm:px-8">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">Guest WiFi</p>
         <div className="space-y-2">
           <h2 className="text-2xl font-semibold text-foreground">Connect in a moment</h2>
           <p className="text-sm leading-6 text-muted-foreground">
-            Enter your details below to continue to our guest network.
+            Add your details below to join our guest network and settle in.
           </p>
         </div>
       </CardHeader>
-      <CardContent className="pt-6">
+      <CardContent className="px-6 pb-7 pt-6 sm:px-8">
         <form className="space-y-5" onSubmit={onSubmit} noValidate>
           <input
             type="text"
@@ -165,7 +165,7 @@ export function LeadForm({ queryParams }: LeadFormProps) {
             ) : null}
           </div>
 
-          <div className="space-y-4 rounded-3xl bg-secondary/50 p-5">
+          <div className="space-y-4 rounded-[1.75rem] bg-[#f2ecdf] p-5">
             <label className="flex items-start gap-3">
               <Checkbox
                 checked={form.termsAccepted}
@@ -218,7 +218,7 @@ export function LeadForm({ queryParams }: LeadFormProps) {
           </div>
 
           {submitState.message ? (
-            <div className="rounded-3xl border border-[#ead0cb] bg-[#fff7f6] px-4 py-3 text-sm text-[#7b443f]">
+            <div className="rounded-[1.75rem] border border-[#ead0cb] bg-[#fff7f6] px-4 py-3 text-sm text-[#7b443f]">
               <p>{submitState.message}</p>
               {submitState.canRetry ? (
                 <Button
@@ -233,7 +233,7 @@ export function LeadForm({ queryParams }: LeadFormProps) {
             </div>
           ) : null}
 
-          <Button type="submit" className="w-full" size="lg" disabled={isPending}>
+          <Button type="submit" variant="portal" className="w-full text-base font-medium" size="lg" disabled={isPending}>
             {isPending ? "Connecting..." : "Connect to WiFi"}
           </Button>
 

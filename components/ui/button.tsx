@@ -11,6 +11,8 @@ const buttonVariants = cva(
       variant: {
         default:
           "bg-primary px-6 py-3 text-primary-foreground shadow-soft hover:bg-[#647055]",
+        portal:
+          "bg-[#f1ff3b] px-8 py-3 text-[#26231d] shadow-[0_18px_35px_rgba(40,36,22,0.12)] hover:bg-[#edf93d]",
         secondary:
           "bg-secondary px-5 py-3 text-secondary-foreground hover:bg-[#ece1cf]",
         ghost: "px-4 py-2 text-foreground hover:bg-white/60",

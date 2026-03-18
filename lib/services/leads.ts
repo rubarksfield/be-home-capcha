@@ -2,6 +2,7 @@ import { AuthorizationStatus, Prisma } from "@prisma/client";
 
 import { db } from "@/lib/db";
 import { extractPortalContext, type RawPortalQueryParams } from "@/lib/portal/query";
+import { appendLeadToGoogleSheet } from "@/lib/services/google-sheets";
 import { getUnifiAuthorizer } from "@/lib/services/unifi";
 import type { AuthorizationResult } from "@/lib/services/unifi/types";
 import { toSafeRedirectUrl } from "@/lib/utils";
@@ -132,6 +133,21 @@ export async function submitLead(input: {
   });
 
   await updateLeadAuthorization(lead.id, authorization);
+  await syncLeadToGoogleSheets({
+    createdAt: lead.createdAt.toISOString(),
+    email: lead.email,
+    firstName: lead.firstName,
+    marketingConsent: lead.marketingConsent,
+    termsAccepted: lead.termsAccepted,
+    privacyAccepted: lead.privacyAccepted,
+    ssid: lead.ssid,
+    site: lead.site,
+    clientMac: lead.clientMac,
+    apMac: lead.apMac,
+    clientIp: lead.clientIp,
+    redirect: lead.redirect,
+    authorizationStatus: authorization.status,
+  });
 
   if (!authorization.ok) {
     return {
@@ -200,4 +216,12 @@ async function updateLeadAuthorization(leadId: string, authorization: Authorizat
       authorizationResponse: authorization.response as Prisma.InputJsonValue,
     },
   });
+}
+
+async function syncLeadToGoogleSheets(input: Parameters<typeof appendLeadToGoogleSheet>[0]) {
+  try {
+    await appendLeadToGoogleSheet(input);
+  } catch (error) {
+    console.error("Failed to sync lead to Google Sheets", error);
+  }
 }

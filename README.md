@@ -99,6 +99,7 @@ Production-ready external captive portal for a UniFi guest WiFi network, built w
 - Original Be Home-aligned visual design with warm neutrals, soft sage accents, rounded cards, subtle gradients, and calm copy
 - Mobile-first portal flow with inline validation, loading states, retry authorization, and an anti-bot honeypot
 - Prisma schema for lead capture and UniFi metadata
+- Google Sheets syncing for lead capture
 - Supabase-compatible Postgres configuration
 - Simple protected admin dashboard
 - Placeholder `/privacy` and `/terms` pages
@@ -178,6 +179,27 @@ Important variables:
 - `UNIFI_USERNAME` and `UNIFI_PASSWORD`: service account credentials
 - `UNIFI_SITE`: default site name for authorization requests
 - `UNIFI_AUTH_DURATION_MINUTES`: guest access duration
+- `GOOGLE_SHEETS_CLIENT_EMAIL`: Google service account email
+- `GOOGLE_SHEETS_PRIVATE_KEY`: Google service account private key
+- `GOOGLE_SHEETS_SPREADSHEET_ID`: target spreadsheet ID
+- `GOOGLE_SHEETS_SHEET_NAME`: worksheet tab name, defaults to `Leads`
+
+## Google Sheets setup
+
+1. Create a Google Sheet for lead capture.
+2. Add a worksheet tab named `Leads` or set your own tab name in `GOOGLE_SHEETS_SHEET_NAME`.
+3. Create a Google Cloud service account with the Google Sheets API enabled.
+4. Share the spreadsheet with the service account email as an editor.
+5. Add these Vercel environment variables:
+
+```env
+GOOGLE_SHEETS_CLIENT_EMAIL=service-account@project-id.iam.gserviceaccount.com
+GOOGLE_SHEETS_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+GOOGLE_SHEETS_SPREADSHEET_ID=your-sheet-id
+GOOGLE_SHEETS_SHEET_NAME=Leads
+```
+
+Each new lead is appended as a row with timestamp, name, email, consent flags, network metadata, and authorization status. If Sheets is not configured, the portal still works and logs are still stored in Postgres.
 
 ## Mock vs live UniFi auth mode
 
@@ -221,6 +243,15 @@ https://your-portal-domain.com/portal
 4. Confirm UniFi is configured to append its guest redirect query parameters.
 5. Ensure the captive portal domain is reachable by guest devices before authorization.
 6. If required by your network setup, allowlist the portal domain in pre-auth settings so guests can load the form page.
+
+To make the live authorization flow work in deployment:
+
+1. Set `UNIFI_AUTH_MODE=live` in Vercel.
+2. Add `UNIFI_BASE_URL`, `UNIFI_USERNAME`, `UNIFI_PASSWORD`, `UNIFI_SITE`, and `UNIFI_AUTH_DURATION_MINUTES`.
+3. Use a UniFi account with permission to authorize guest clients.
+4. Point UniFi’s external portal URL to your deployed `/portal` route.
+5. Test on the actual guest SSID and confirm the redirect includes `mac`, `ap`, `ip`, `ssid`, `site`, and `url`.
+6. If your UniFi controller version uses different endpoints, update [`lib/services/unifi/live.ts`](./lib/services/unifi/live.ts).
 
 Common redirect parameters supported by this app include:
 
