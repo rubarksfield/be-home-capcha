@@ -10,7 +10,7 @@ export function BrandMark({ centered = false, hero = false }: BrandMarkProps) {
     <div
       className={[
         "inline-flex rounded-[2rem] border border-white/70 bg-white/78 shadow-soft backdrop-blur",
-        hero ? "w-full max-w-[320px] flex-col items-center gap-3 px-6 py-5" : "items-center gap-4 px-5 py-4",
+        hero ? "flex w-full flex-col items-center gap-3 px-6 py-5" : "items-center gap-4 px-5 py-4",
         centered ? "mx-auto justify-center text-center" : "",
       ].join(" ")}
     >
