@@ -1,4 +1,4 @@
-import { env } from "@/lib/env";
+import { getServerEnv } from "@/lib/env";
 import type { AuthorizeGuestInput, AuthorizationResult, UnifiAuthorizer } from "@/lib/services/unifi/types";
 
 type UnifiLoginResponse = {
@@ -9,11 +9,21 @@ type UnifiLoginResponse = {
 };
 
 export class LiveUnifiAuthorizer implements UnifiAuthorizer {
-  private readonly baseUrl = env.UNIFI_BASE_URL;
-  private readonly username = env.UNIFI_USERNAME;
-  private readonly password = env.UNIFI_PASSWORD;
-  private readonly site = env.UNIFI_SITE;
-  private readonly durationMinutes = env.UNIFI_AUTH_DURATION_MINUTES;
+  private readonly baseUrl: string;
+  private readonly username?: string;
+  private readonly password?: string;
+  private readonly site: string;
+  private readonly durationMinutes: number;
+
+  constructor() {
+    const env = getServerEnv();
+
+    this.baseUrl = env.UNIFI_BASE_URL ?? "";
+    this.username = env.UNIFI_USERNAME;
+    this.password = env.UNIFI_PASSWORD;
+    this.site = env.UNIFI_SITE;
+    this.durationMinutes = env.UNIFI_AUTH_DURATION_MINUTES;
+  }
 
   async authorizeGuest(input: AuthorizeGuestInput): Promise<AuthorizationResult> {
     if (!this.username || !this.password) {

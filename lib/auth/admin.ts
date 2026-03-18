@@ -1,12 +1,13 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 
-import { env } from "@/lib/env";
+import { getServerEnv } from "@/lib/env";
 
 const ADMIN_COOKIE_NAME = "behome-admin-session";
 
 function signValue(value: string) {
-  return createHmac("sha256", env.ADMIN_SESSION_SECRET).update(value).digest("hex");
+  const { ADMIN_SESSION_SECRET } = getServerEnv();
+  return createHmac("sha256", ADMIN_SESSION_SECRET).update(value).digest("hex");
 }
 
 export async function createAdminSession() {
@@ -52,8 +53,10 @@ export async function isAdminAuthenticated() {
 }
 
 export function verifyAdminPassword(password: string) {
+  const { ADMIN_PASSWORD } = getServerEnv();
+
   try {
-    return timingSafeEqual(Buffer.from(password), Buffer.from(env.ADMIN_PASSWORD));
+    return timingSafeEqual(Buffer.from(password), Buffer.from(ADMIN_PASSWORD));
   } catch {
     return false;
   }

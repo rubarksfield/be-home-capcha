@@ -19,10 +19,10 @@ const serverEnvSchema = z.object({
 });
 
 const clientEnvSchema = z.object({
-  NEXT_PUBLIC_SITE_URL: z.string().url(),
-  NEXT_PUBLIC_BEHOME_WEBSITE_URL: z.string().url(),
-  NEXT_PUBLIC_CLASSES_URL: z.string().url(),
-  NEXT_PUBLIC_HIRE_SPACE_URL: z.string().url(),
+  NEXT_PUBLIC_SITE_URL: z.string().url().default("http://localhost:3000"),
+  NEXT_PUBLIC_BEHOME_WEBSITE_URL: z.string().url().default("https://www.behomecascais.com"),
+  NEXT_PUBLIC_CLASSES_URL: z.string().url().default("https://www.behomecascais.com"),
+  NEXT_PUBLIC_HIRE_SPACE_URL: z.string().url().default("https://www.behomecascais.com"),
   NEXT_PUBLIC_PORTAL_REDIRECT_DELAY_MS: z.coerce.number().default(5000),
 });
 
@@ -30,7 +30,7 @@ function formatIssues(error: z.ZodError) {
   return error.issues.map((issue) => issue.path.join(".")).join(", ");
 }
 
-export const env = (() => {
+export function getServerEnv() {
   const parsed = serverEnvSchema.safeParse(process.env);
 
   if (!parsed.success) {
@@ -38,14 +38,16 @@ export const env = (() => {
   }
 
   return parsed.data;
-})();
+}
 
-export const publicEnv = (() => {
-  const parsed = clientEnvSchema.safeParse(process.env);
-
-  if (!parsed.success) {
-    throw new Error(`Invalid public environment variables: ${formatIssues(parsed.error)}`);
-  }
-
-  return parsed.data;
-})();
+export function getPublicEnv() {
+  return clientEnvSchema.parse({
+    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+    NEXT_PUBLIC_BEHOME_WEBSITE_URL:
+      process.env.NEXT_PUBLIC_BEHOME_WEBSITE_URL ?? "https://www.behomecascais.com",
+    NEXT_PUBLIC_CLASSES_URL: process.env.NEXT_PUBLIC_CLASSES_URL ?? "https://www.behomecascais.com",
+    NEXT_PUBLIC_HIRE_SPACE_URL:
+      process.env.NEXT_PUBLIC_HIRE_SPACE_URL ?? "https://www.behomecascais.com",
+    NEXT_PUBLIC_PORTAL_REDIRECT_DELAY_MS: process.env.NEXT_PUBLIC_PORTAL_REDIRECT_DELAY_MS ?? "5000",
+  });
+}

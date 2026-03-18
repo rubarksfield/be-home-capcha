@@ -1,4 +1,4 @@
-import { env } from "@/lib/env";
+import { getServerEnv } from "@/lib/env";
 import { LiveUnifiAuthorizer } from "@/lib/services/unifi/live";
 import { MockUnifiAuthorizer } from "@/lib/services/unifi/mock";
 import type { UnifiAuthorizer } from "@/lib/services/unifi/types";
@@ -10,7 +10,8 @@ export function getUnifiAuthorizer() {
     return authorizer;
   }
 
-  authorizer = env.UNIFI_AUTH_MODE === "live" ? new LiveUnifiAuthorizer() : new MockUnifiAuthorizer();
+  authorizer =
+    getServerEnv().UNIFI_AUTH_MODE === "live" ? new LiveUnifiAuthorizer() : new MockUnifiAuthorizer();
 
   return authorizer;
 }

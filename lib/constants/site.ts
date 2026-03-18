@@ -1,4 +1,6 @@
-import { publicEnv } from "@/lib/env";
+import { getPublicEnv } from "@/lib/env";
+
+const publicEnv = getPublicEnv();
 
 export const siteConfig = {
   name: "Be Home Cascais Portal",
