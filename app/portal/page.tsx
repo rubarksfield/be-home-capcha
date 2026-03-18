@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { BrandMark } from "@/components/portal/brand-mark";
 import { FooterLinks } from "@/components/portal/footer-links";
 import { LeadForm } from "@/components/portal/lead-form";
 import { PortalCopy } from "@/components/portal/portal-copy";
@@ -23,6 +24,9 @@ export default async function PortalPage({ searchParams }: PortalPageProps) {
   return (
     <main className="min-h-screen bg-portal-glow">
       <div className="mx-auto flex min-h-screen max-w-7xl flex-col justify-between px-6 py-8 sm:px-10 lg:px-12">
+        <div className="pb-3 lg:hidden">
+          <BrandMark centered hero />
+        </div>
         <div className="grid flex-1 items-start gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:gap-12">
           <section className="order-1 py-2 lg:order-2 lg:py-6">
             <LeadForm queryParams={queryParams} />

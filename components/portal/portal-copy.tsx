@@ -6,7 +6,9 @@ import { TrustPills } from "@/components/portal/trust-pill";
 export function PortalCopy() {
   return (
     <div className="flex flex-col gap-8">
-      <BrandMark />
+      <div className="hidden lg:block">
+        <BrandMark />
+      </div>
       <div className="max-w-xl space-y-5">
         <p className="text-sm font-semibold uppercase tracking-[0.32em] text-primary">
           Community · Wellness · Cascais
