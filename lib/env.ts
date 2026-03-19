@@ -20,6 +20,8 @@ const serverEnvSchema = z.object({
   UNIFI_PASSWORD: z.string().optional(),
   UNIFI_SITE: z.string().default("default"),
   UNIFI_AUTH_DURATION_MINUTES: z.coerce.number().int().positive().default(480),
+  UNIFI_BRIDGE_URL: z.string().url().optional(),
+  UNIFI_BRIDGE_TOKEN: z.string().min(16).optional(),
 });
 
 const clientEnvSchema = z.object({

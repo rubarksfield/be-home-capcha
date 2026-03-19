@@ -179,6 +179,8 @@ Important variables:
 - `UNIFI_USERNAME` and `UNIFI_PASSWORD`: service account credentials
 - `UNIFI_SITE`: default site name for authorization requests
 - `UNIFI_AUTH_DURATION_MINUTES`: guest access duration
+- `UNIFI_BRIDGE_URL`: optional public bridge endpoint for local-network UniFi controllers
+- `UNIFI_BRIDGE_TOKEN`: bearer token shared between the portal app and the bridge
 - `GOOGLE_SHEETS_CLIENT_EMAIL`: Google service account email
 - `GOOGLE_SHEETS_PRIVATE_KEY`: Google service account private key
 - `GOOGLE_SHEETS_SPREADSHEET_ID`: target spreadsheet ID
@@ -227,6 +229,39 @@ The live adapter currently uses:
 - `POST /proxy/network/api/s/{site}/cmd/stamgr` with `cmd: "authorize-guest"`
 
 UniFi API behaviour can vary by controller version and UniFi OS generation. The adapter in [`lib/services/unifi/live.ts`](./lib/services/unifi/live.ts) is structured so another engineer can update endpoint paths or payload details without touching the portal UI or persistence layer.
+
+### Live mode with a local-network controller
+
+If your UniFi controller only exists on a private LAN address such as `https://192.168.3.1`, Vercel cannot reach it directly. In that case, run the included bridge script on a machine that can see the controller.
+
+1. Run the bridge on a LAN machine:
+
+```bash
+node scripts/unifi-bridge-server.mjs
+```
+
+2. Set these bridge machine env vars:
+
+```env
+UNIFI_BASE_URL=https://192.168.3.1
+UNIFI_USERNAME=your-controller-username
+UNIFI_PASSWORD=your-controller-password
+UNIFI_SITE=default
+UNIFI_BRIDGE_TOKEN=replace-with-a-long-random-token
+PORT=8787
+```
+
+3. Expose that bridge securely through a public URL you control.
+
+4. In Vercel, set:
+
+```env
+UNIFI_AUTH_MODE=live
+UNIFI_BRIDGE_URL=https://your-bridge-host/authorize-guest
+UNIFI_BRIDGE_TOKEN=replace-with-the-same-token
+```
+
+5. Leave `UNIFI_BASE_URL` on Vercel empty when using the bridge. The bridge machine handles the local controller connection.
 
 ## UniFi external portal configuration
 

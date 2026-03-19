@@ -14,6 +14,8 @@ export class LiveUnifiAuthorizer implements UnifiAuthorizer {
   private readonly password?: string;
   private readonly site: string;
   private readonly durationMinutes: number;
+  private readonly bridgeUrl?: string;
+  private readonly bridgeToken?: string;
 
   constructor() {
     const env = getServerEnv();
@@ -23,9 +25,15 @@ export class LiveUnifiAuthorizer implements UnifiAuthorizer {
     this.password = env.UNIFI_PASSWORD;
     this.site = env.UNIFI_SITE;
     this.durationMinutes = env.UNIFI_AUTH_DURATION_MINUTES;
+    this.bridgeUrl = env.UNIFI_BRIDGE_URL;
+    this.bridgeToken = env.UNIFI_BRIDGE_TOKEN;
   }
 
   async authorizeGuest(input: AuthorizeGuestInput): Promise<AuthorizationResult> {
+    if (this.bridgeUrl) {
+      return this.authorizeGuestViaBridge(input);
+    }
+
     if (!this.username || !this.password) {
       return {
         ok: false,
@@ -132,6 +140,60 @@ export class LiveUnifiAuthorizer implements UnifiAuthorizer {
         response: {
           error: error instanceof Error ? error.message : "UNKNOWN_ERROR",
           note: "Controller endpoints can vary by UniFi OS version. Adjust the adapter if your controller uses different paths.",
+        },
+      };
+    }
+  }
+
+  private async authorizeGuestViaBridge(input: AuthorizeGuestInput): Promise<AuthorizationResult> {
+    try {
+      const response = await fetch(this.bridgeUrl!, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(this.bridgeToken ? { Authorization: `Bearer ${this.bridgeToken}` } : {}),
+        },
+        body: JSON.stringify({
+          clientMac: input.clientMac,
+          site: input.site ?? this.site,
+          durationMinutes: this.durationMinutes,
+          email: input.email,
+          firstName: input.firstName,
+        }),
+      });
+
+      const data = (await response.json().catch(async () => ({
+        raw: await response.text(),
+      }))) as Record<string, unknown>;
+
+      if (!response.ok) {
+        return {
+          ok: false,
+          status: "FAILED",
+          message: "The UniFi bridge could not authorize the guest.",
+          response: {
+            step: "bridge-authorize-guest",
+            status: response.status,
+            bridge: data,
+          },
+        };
+      }
+
+      return {
+        ok: true,
+        status: "AUTHORIZED",
+        message: "Guest authorized successfully via bridge.",
+        response: {
+          bridge: data,
+        },
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        status: "FAILED",
+        message: "A network error occurred while contacting the UniFi bridge.",
+        response: {
+          error: error instanceof Error ? error.message : "UNKNOWN_ERROR",
         },
       };
     }
