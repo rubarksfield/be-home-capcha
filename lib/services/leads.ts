@@ -26,9 +26,8 @@ export type SubmissionResult =
       leadId?: string;
     };
 
-function resolveRedirectUrl(redirect?: string | null) {
+function resolveRedirectUrl() {
   return (
-    toSafeRedirectUrl(redirect) ??
     toSafeRedirectUrl(process.env.PORTAL_DEFAULT_REDIRECT_URL) ??
     toSafeRedirectUrl(process.env.NEXT_PUBLIC_BEHOME_WEBSITE_URL) ??
     "https://www.behomecascais.com"
@@ -101,7 +100,7 @@ export async function submitLead(input: {
       leadId: duplicateLead.id,
       status: duplicateLead.authorizationStatus,
       message: "This device has already been submitted recently.",
-      redirectTo: resolveRedirectUrl(duplicateLead.redirect),
+      redirectTo: resolveRedirectUrl(),
     } satisfies SubmissionResult;
   }
 
@@ -167,7 +166,7 @@ export async function submitLead(input: {
         ? AuthorizationStatus.AUTHORIZED
         : AuthorizationStatus.MOCK_AUTHORIZED,
     message: authorization.message,
-    redirectTo: resolveRedirectUrl(context.redirect),
+    redirectTo: resolveRedirectUrl(),
   } satisfies SubmissionResult;
 }
 
@@ -197,7 +196,7 @@ export async function retryAuthorization(leadId: string) {
     message: authorization.ok
       ? "Connection restored. You can continue to the success page."
       : "We still couldn’t complete the connection automatically.",
-    redirectTo: resolveRedirectUrl(lead.redirect),
+    redirectTo: resolveRedirectUrl(),
   };
 }
 
