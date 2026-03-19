@@ -8,22 +8,35 @@ const retrySchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const body = (await request.json()) as unknown;
-  const parsed = retrySchema.safeParse(body);
+  try {
+    const body = (await request.json()) as unknown;
+    const parsed = retrySchema.safeParse(body);
 
-  if (!parsed.success) {
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          ok: false,
+          message: "Missing lead identifier.",
+        },
+        { status: 400 },
+      );
+    }
+
+    const result = await retryAuthorization(parsed.data.leadId);
+
+    return NextResponse.json(result, {
+      status: result.ok ? 200 : 502,
+    });
+  } catch (error) {
+    console.error("Portal retry failed", error);
+
     return NextResponse.json(
       {
         ok: false,
-        message: "Missing lead identifier.",
+        message:
+          "We still couldn’t complete the connection automatically. Please try again or speak to a member of the team.",
       },
-      { status: 400 },
+      { status: 500 },
     );
   }
-
-  const result = await retryAuthorization(parsed.data.leadId);
-
-  return NextResponse.json(result, {
-    status: result.ok ? 200 : 502,
-  });
 }
