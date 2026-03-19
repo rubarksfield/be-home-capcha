@@ -37,39 +37,47 @@ export function LeadForm({ queryParams }: LeadFormProps) {
     setSubmitState({});
 
     startTransition(async () => {
-      const response = await fetch("/api/portal/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...form,
-          queryParams,
-        }),
-      });
-
-      const data = (await response.json()) as {
-        ok: boolean;
-        message: string;
-        leadId?: string;
-        fieldErrors?: Record<string, string | undefined>;
-        redirectTo?: string;
-      };
-
-      if (!data.ok) {
-        setSubmitState({
-          message: data.message,
-          fieldErrors: data.fieldErrors,
-          leadId: data.leadId,
-          canRetry: Boolean(data.leadId),
+      try {
+        const response = await fetch("/api/portal/submit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...form,
+            queryParams,
+          }),
         });
-        return;
-      }
 
-      const nextUrl = new URL("/success", window.location.origin);
-      nextUrl.searchParams.set("leadId", data.leadId ?? "");
-      nextUrl.searchParams.set("redirectTo", data.redirectTo ?? "");
-      window.location.assign(nextUrl.toString());
+        const raw = await response.text();
+        const data = JSON.parse(raw) as {
+          ok: boolean;
+          message: string;
+          leadId?: string;
+          fieldErrors?: Record<string, string | undefined>;
+          redirectTo?: string;
+        };
+
+        if (!data.ok) {
+          setSubmitState({
+            message: data.message,
+            fieldErrors: data.fieldErrors,
+            leadId: data.leadId,
+            canRetry: Boolean(data.leadId),
+          });
+          return;
+        }
+
+        const nextUrl = new URL("/success", window.location.origin);
+        nextUrl.searchParams.set("leadId", data.leadId ?? "");
+        nextUrl.searchParams.set("redirectTo", data.redirectTo ?? "");
+        window.location.assign(nextUrl.toString());
+      } catch {
+        setSubmitState({
+          message:
+            "We couldn’t complete the connection just yet. Please try again or speak to a member of the team.",
+        });
+      }
     });
   };
 
@@ -81,34 +89,43 @@ export function LeadForm({ queryParams }: LeadFormProps) {
     }
 
     startTransition(async () => {
-      const response = await fetch("/api/portal/retry", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          leadId,
-        }),
-      });
+      try {
+        const response = await fetch("/api/portal/retry", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            leadId,
+          }),
+        });
 
-      const data = (await response.json()) as {
-        ok: boolean;
-        message: string;
-        redirectTo?: string;
-      };
+        const raw = await response.text();
+        const data = JSON.parse(raw) as {
+          ok: boolean;
+          message: string;
+          redirectTo?: string;
+        };
 
-      if (!data.ok) {
+        if (!data.ok) {
+          setSubmitState((current) => ({
+            ...current,
+            message: data.message,
+          }));
+          return;
+        }
+
+        const nextUrl = new URL("/success", window.location.origin);
+        nextUrl.searchParams.set("leadId", leadId);
+        nextUrl.searchParams.set("redirectTo", data.redirectTo ?? "");
+        window.location.assign(nextUrl.toString());
+      } catch {
         setSubmitState((current) => ({
           ...current,
-          message: data.message,
+          message:
+            "We still couldn’t complete the connection automatically. Please try again or speak to a member of the team.",
         }));
-        return;
       }
-
-      const nextUrl = new URL("/success", window.location.origin);
-      nextUrl.searchParams.set("leadId", leadId);
-      nextUrl.searchParams.set("redirectTo", data.redirectTo ?? "");
-      window.location.assign(nextUrl.toString());
     });
   };
 
