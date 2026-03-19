@@ -1,7 +1,3 @@
-"use client";
-
-import { useEffect } from "react";
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { siteConfig } from "@/lib/constants/site";
@@ -11,18 +7,6 @@ type SuccessContentProps = {
 };
 
 export function SuccessContent({ redirectTo }: SuccessContentProps) {
-  useEffect(() => {
-    if (!redirectTo) {
-      return;
-    }
-
-    const timeout = window.setTimeout(() => {
-      window.location.href = redirectTo;
-    }, siteConfig.redirectDelayMs);
-
-    return () => window.clearTimeout(timeout);
-  }, [redirectTo]);
-
   return (
     <Card className="max-w-2xl">
       <CardContent className="space-y-8 p-8 sm:p-10">
@@ -33,12 +17,18 @@ export function SuccessContent({ redirectTo }: SuccessContentProps) {
             Your guest access is now active. Settle in, take a breath, and enjoy the space.
           </p>
           <p className="max-w-xl text-sm leading-6 text-muted-foreground">
-            If you’re not redirected automatically in a few seconds, you can continue using any of the links
-            below.
+            Your connection is ready. You can continue using any of the links below.
           </p>
         </div>
 
         <div className="flex flex-wrap gap-3">
+          {redirectTo ? (
+            <Button asChild size="lg">
+              <a href={redirectTo}>
+                Continue online
+              </a>
+            </Button>
+          ) : null}
           <Button asChild size="lg">
             <a href={siteConfig.websiteUrl} target="_blank" rel="noreferrer">
               Visit Be Home website
