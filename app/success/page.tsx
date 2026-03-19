@@ -24,7 +24,12 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   return (
     <main className="min-h-screen bg-portal-glow">
       <div className="mx-auto flex min-h-screen max-w-5xl flex-col justify-between gap-10 px-6 py-8 sm:px-10">
-        <BrandMark />
+        <div className="lg:hidden">
+          <BrandMark centered hero />
+        </div>
+        <div className="hidden lg:block">
+          <BrandMark />
+        </div>
         <div className="flex flex-1 items-center">
           <SuccessContent redirectTo={redirectTo} />
         </div>
